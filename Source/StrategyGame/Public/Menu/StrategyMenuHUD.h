@@ -30,6 +30,8 @@ public:
 	/** Menu that is about to open. */
 	TSharedPtr<TArray<class FStrategyMenuItem>> NextMenu;
 
+	UUserWidget* InputWidget;
+
 	/** Menu history stack. */
 	TArray<TSharedPtr<TArray<class FStrategyMenuItem>>> MenuHistory;
 

@@ -156,8 +156,3 @@ void AStrategyGameMode::ExitGame()
 		PlayerController->ConsoleCommand(TEXT("quit"));
 	}
 }
-
-
-
-
-

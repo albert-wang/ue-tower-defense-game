@@ -18,7 +18,7 @@ void SStrategySlateHUDWidget::Construct(const FArguments& InArgs)
 
 	OwnerHUD = InArgs._OwnerHUD;
 	bIsPauseMenuActive = false;
-	PauseMenuButtons.AddZeroed((SupportsQuitButton ? 3 : 2));
+	PauseMenuButtons.AddZeroed((SupportsQuitButton ? 4 : 3));
 	Visibility.Bind(this, &SStrategySlateHUDWidget::GetSlateVisibility);
 	UIScale.Bind(this, &SStrategySlateHUDWidget::GetUIScale);
 	MiniMapBorderMargin = 20;
@@ -189,12 +189,23 @@ void SStrategySlateHUDWidget::Construct(const FArguments& InArgs)
 			+SOverlay::Slot()
 			.VAlign(VAlign_Bottom)
 			.HAlign(HAlign_Right)
-			.Padding(FMargin(0,0,20,20))
+			.Padding(FMargin(0,0,40,40))
 			[
 				SAssignNew(PauseButton,SStrategyButtonWidget)
 				.OwnerHUD(OwnerHUD)
 				.Visibility(EVisibility::Visible)
 				.OnClicked(this, &SStrategySlateHUDWidget::TogglePauseMenu)
+				.ButtonText(FText::GetEmpty())
+			]
+			+SOverlay::Slot()
+			.VAlign(VAlign_Bottom)
+			.HAlign(HAlign_Right)
+			.Padding(FMargin(0, 0, 180, 40))
+			[
+				SAssignNew(QuadButton, SStrategyButtonWidget)
+				.OwnerHUD(OwnerHUD)
+				.Visibility(EVisibility::Visible)
+				.OnClicked(this, &SStrategySlateHUDWidget::ToggleQuadSpeed)
 				.ButtonText(FText::GetEmpty())
 			]
 		]
@@ -213,6 +224,21 @@ void SStrategySlateHUDWidget::Construct(const FArguments& InArgs)
 				.ButtonText(NSLOCTEXT("SStrategySlateHUDWidget", "CheatGold", "Cheat-Gold"))
 				.OnClicked(this, &SStrategySlateHUDWidget::OnCheatAddGold)
 			];	
+	}
+
+	{
+		// Muxy stuff
+		MenuBox->AddSlot()
+		[
+			SAssignNew(PauseMenuButtons[ButtonIndex++], SStrategyButtonWidget)
+			.OwnerHUD(OwnerHUD)
+			.Visibility(EVisibility::Visible)
+			.TextFont(FStrategyStyle::Get().GetFontStyle(TEXT("StrategyGame.MenuFont")))
+			.TextVAlign(EVerticalAlignment::VAlign_Center)
+			.TextMargin(FMargin(0))
+			.ButtonText(NSLOCTEXT("SStrategySlateHUDWidget", "ConnectMuxy", "Connect Muxy"))
+			.OnClicked(this, &SStrategySlateHUDWidget::OnCheatAddGold)
+		];
 	}
 
 	if (SupportsQuitButton)
@@ -444,6 +470,23 @@ FReply SStrategySlateHUDWidget::TogglePauseMenu()
 			}
 		}
 	}
+	return FReply::Handled();
+}
+
+FReply SStrategySlateHUDWidget::ToggleQuadSpeed()
+{
+	AStrategyGameState* const MyGameState = OwnerHUD->GetWorld()->GetGameState<AStrategyGameState>();
+	AWorldSettings* const WorldSettings = MyGameState->GetWorld()->GetWorldSettings();
+	
+	if (WorldSettings->TimeDilation > 1.0f) 
+	{
+		OwnerHUD->SetGameSpeed(1.0f);
+	}
+	else
+	{
+		OwnerHUD->SetGameSpeed(4.0f);
+	}
+
 	return FReply::Handled();
 }
 

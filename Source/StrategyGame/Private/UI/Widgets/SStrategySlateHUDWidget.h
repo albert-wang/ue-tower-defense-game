@@ -44,6 +44,8 @@ public:
 	/** callback function for toggling pause menu */
 	FReply TogglePauseMenu();
 
+	FReply ToggleQuadSpeed();
+
 	/** action buttons widget */
 	TSharedPtr<SStrategyActionGrid> ActionButtonsWidget;
 
@@ -55,6 +57,9 @@ public:
 
 	/** Button that toggles pause menu */
 	TSharedPtr<SStrategyButtonWidget> PauseButton;
+
+	/** Button that toggles 4x speed menu */
+	TSharedPtr<SStrategyButtonWidget> QuadButton;
 
 	/** Buttons inside the pause menu */
 	TArray< TSharedPtr<SStrategyButtonWidget> > PauseMenuButtons;

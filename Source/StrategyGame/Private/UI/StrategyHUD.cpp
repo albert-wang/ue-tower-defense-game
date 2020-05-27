@@ -19,10 +19,11 @@ AStrategyHUD::AStrategyHUD(const FObjectInitializer& ObjectInitializer) :
 	static ConstructorHelpers::FObjectFinder<UTexture2D> DefaultActionObj(TEXT("/Game/UI/HUD/Actions/DefaultAction"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> DefaultCenterActionObj(TEXT("/Game/UI/HUD/Actions/DefaultActionBig"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> ActionPauseObj(TEXT("/Game/UI/HUD/Actions/ActionPause"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> ActionQuadObj(TEXT("/Game/UI/HUD/Actions/ActionQuad"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> ActionMonoObj(TEXT("/Game/UI/HUD/Actions/ActionMono"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> MenuButtonObj(TEXT("/Game/UI/MainMenu/MenuButton"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> ResourceObj(TEXT("/Game/UI/HUD/Coin"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> LivesObj(TEXT("/Game/UI/HUD/Actions/Barrel"));
-	
 
 	static ConstructorHelpers::FObjectFinder<UMaterial> HUDMousePointerNeutralObj(TEXT("/Game/UI/Pointers/Neutral"));
 	static ConstructorHelpers::FObjectFinder<UMaterial> HUDMousePointerAttackObj(TEXT("/Game/UI/Pointers/Enemy"));
@@ -35,6 +36,8 @@ AStrategyHUD::AStrategyHUD(const FObjectInitializer& ObjectInitializer) :
 	DefaultActionTexture = DefaultActionObj.Object;
 	DefaultCenterActionTexture = DefaultCenterActionObj.Object;
 	ActionPauseTexture = ActionPauseObj.Object;
+	ActionQuadTexture = ActionQuadObj.Object;
+	ActionMonoTexture = ActionMonoObj.Object;
 	MenuButtonTexture = MenuButtonObj.Object;
 	ResourceTexture =  ResourceObj.Object;
 
@@ -44,7 +47,6 @@ AStrategyHUD::AStrategyHUD(const FObjectInitializer& ObjectInitializer) :
 	MiniMapMargin = 40;
 	bBlackScreenActive = false;
 }
-
 
 /**
  * This is the main drawing pump.  It will determine which hud we need to draw (Game or PostGame).  Any drawing that should occur
@@ -102,6 +104,23 @@ void AStrategyHUD::ShowBlackScreen()
 	HideAllActionButtons(true);
 	bBlackScreenActive = true;
 	GEngine->GameViewport->RemoveAllViewportWidgets();
+}
+
+void AStrategyHUD::SetGameSpeed(float f)
+{
+	AStrategyGameState* const MyGameState = GetWorld()->GetGameState<AStrategyGameState>();
+	AWorldSettings* const WorldSettings = MyGameState->GetWorld()->GetWorldSettings();
+
+	WorldSettings->SetTimeDilation(f);
+	if (f == 1.0f)
+	{
+		MyHUDMenuWidget->QuadButton->SetImage(ActionQuadTexture);
+	}
+	else
+	{
+		MyHUDMenuWidget->QuadButton->SetImage(ActionMonoTexture);
+	}
+	MyHUDMenuWidget->QuadButton->DeferredShow();
 }
 
 void AStrategyHUD::DrawActorsHealth()
@@ -223,7 +242,6 @@ void AStrategyHUD::BuildMenuWidgets()
 
 			if (MyHUDMenuWidget.IsValid())
 			{
-
 				GEngine->GameViewport->AddViewportWidgetContent(
 					SNew(SWeakWidget)
 					.PossiblyNullContent(MyHUDMenuWidget.ToSharedRef())
@@ -237,6 +255,13 @@ void AStrategyHUD::BuildMenuWidgets()
 					MyHUDMenuWidget->PauseButton->SetImage(ActionPauseTexture);
 					MyHUDMenuWidget->PauseButton->DeferredShow();
 				}
+
+				if (ActionQuadTexture != NULL)
+				{
+					MyHUDMenuWidget->QuadButton->SetImage(ActionQuadTexture);
+					MyHUDMenuWidget->QuadButton->DeferredShow();
+				}
+
 				if (MenuButtonTexture != NULL)
 				{
 					for (uint8 i = 0; i < MyHUDMenuWidget->PauseMenuButtons.Num(); i++)
@@ -248,7 +273,6 @@ void AStrategyHUD::BuildMenuWidgets()
 		}
 	}
 }
-
 
 FVector2D AStrategyHUD::GetActionsWidgetPos() const
 {
@@ -271,7 +295,6 @@ TSharedPtr<SStrategySlateHUDWidget> AStrategyHUD::GetHUDWidget() const
 {
 	return MyHUDMenuWidget;
 }
-
 
 void AStrategyHUD::ClearActionRequiredStates()
 {
@@ -368,8 +391,6 @@ void AStrategyHUD::DrawHealthBar(AActor* ForActor, float HealthPercentage, int32
 	TileItem.SetColor(FLinearColor(0.5f, 0.5f, 0.5f, 0.5f));
 	Canvas->DrawItem( TileItem );	
 }
-
-
 
 void AStrategyHUD::DrawMousePointer()
 {

@@ -9,7 +9,7 @@
 #include "StrategyHelpers.h"
 #include "StrategyGameLoadingScreen.h"
 #include "StrategyHUDSoundsWidgetStyle.h"
-
+#include "MuxyInputFieldBase.h"
 
 #define LOCTEXT_NAMESPACE "StrategyGame.HUD.Menu"
 
@@ -17,6 +17,9 @@ AStrategyMenuHUD::AStrategyMenuHUD(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	MenuButtonTexture = LoadObject<UTexture2D>(nullptr, TEXT("/Game/UI/MainMenu/MenuButton.MenuButton"), nullptr, LOAD_None, nullptr);
+
+	ConstructorHelpers::FClassFinder<UUserWidget> InputClassFinder(TEXT("/Game/UI/MainMenu/InputField"));
+	InputWidget = CreateWidget<UMuxyInputFieldBase>(this->GetWorld(), InputClassFinder.Class);
 
 	AddMenuItem(MainMenu,LOCTEXT("Start", "START"));
 	AddMenuItem(MainMenu->Last().SubMenu,LOCTEXT("Easy", "EASY"))->OnConfirmMenuItem.BindUObject(this,&AStrategyMenuHUD::ExecuteSelectMapAction,(int32)EMenuAction::SetEasy);
@@ -112,6 +115,8 @@ void AStrategyMenuHUD::RebuildWidgets(bool bHotReload)
 		GVC->AddViewportWidgetContent(
 			SNew(SWeakWidget)
 			.PossiblyNullContent(MenuWidget.ToSharedRef()));
+
+		InputWidget->AddToViewport();
 	}
 }
 

@@ -1,5 +1,6 @@
 // Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
 
+using System.IO;
 using UnrealBuildTool;
 
 public class StrategyGame : ModuleRules
@@ -39,8 +40,21 @@ public class StrategyGame : ModuleRules
 				"StrategyGame/Private/UI/Menu",
 				"StrategyGame/Private/UI/Style",
 				"StrategyGame/Private/UI/Widgets",
+				"StrategyGame/Private/ThirdParty"
 			}
 		);
+
+		PublicSystemLibraryPaths.Add("StrategyGame/Private/ThirdParty");
+		PublicAdditionalLibraries.Add("Experimental.lib");
+		PublicAdditionalLibraries.Add("websockets.lib");
+		PublicAdditionalLibraries.Add("zlib.lib");
+		PublicAdditionalLibraries.Add("libcrypto.lib");
+		PublicAdditionalLibraries.Add("libssl.lib");
+		PublicAdditionalLibraries.Add("libuv.lib");
+		PublicAdditionalLibraries.Add("crypt32.lib");
+		PublicAdditionalLibraries.Add("Psapi.lib");
+		PublicAdditionalLibraries.Add("Userenv.lib");
+
 
 		if (Target.Platform == UnrealTargetPlatform.Android)
 		{

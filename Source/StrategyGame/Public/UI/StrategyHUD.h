@@ -47,6 +47,9 @@ public:
 	/** Enables the black screen, used for transition from game */
 	void ShowBlackScreen();
 
+	/** Toggles the gamespeed **/
+	void SetGameSpeed(float mul);
+
 	/** position to display action grid */
 	FVector2D ActionGridPos;
 
@@ -141,6 +144,14 @@ protected:
 	/** lives texture - barrel */
 	UPROPERTY()
 	UTexture2D* LivesTexture;
+
+	/** 4x texture */
+	UPROPERTY()
+	UTexture2D* ActionQuadTexture;
+
+	/** 4x texture */
+	UPROPERTY()
+	UTexture2D* ActionMonoTexture;
 
 	/** if we are currently drawing black screen */
 	uint8 bBlackScreenActive : 1;

@@ -97,6 +97,7 @@ public:
 	// End StrategyBuilding interface
 
 	/** spawns a dwarf */
+	UFUNCTION(BlueprintCallable, Category = Brewery)
 	bool SpawnDwarf();
 
 	/** gets spawn queue length string */
