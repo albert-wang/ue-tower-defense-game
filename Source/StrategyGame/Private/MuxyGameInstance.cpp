@@ -7,8 +7,8 @@
 #include <thread>
 #include <vector>
 
-std::thread * muxyThread = nullptr;
-WebsocketConnection * conn = nullptr;
+std::thread* muxyThread = nullptr;
+WebsocketConnection* conn = nullptr;
 bool connected = false;
 std::vector<nlohmann::json> queue;
 
@@ -24,7 +24,7 @@ void SendMessage(nlohmann::json msg)
 	}
 }
 
-void SetupConnection(UMuxyGameInstance * inst)
+void SetupConnection(UMuxyGameInstance* inst)
 {
 	if (!muxyThread)
 	{
@@ -40,12 +40,24 @@ void SetupConnection(UMuxyGameInstance * inst)
 				std::string type = obj["meta"]["action"];
 				if (type == "authenticate")
 				{
-					connected = true;
-					if (queue.size())
+					if (obj["data"].is_null())
 					{
-						for (auto it = queue.begin(); it != queue.end(); ++it)
+						// Don't do anything - invisible failure
+					}
+					else
+					{
+						std::string jwt = obj["data"]["jwt"];
+						inst->JWT = FString(jwt.c_str());
+
+						inst->OnAuthenticate.Broadcast();
+
+						connected = true;
+						if (queue.size())
 						{
-							conn->send(*it);
+							for (auto it = queue.begin(); it != queue.end(); ++it)
+							{
+								conn->send(*it);
+							}
 						}
 					}
 				}
@@ -75,26 +87,33 @@ void SetupConnection(UMuxyGameInstance * inst)
 					inst->OnGetPollResultsDelegate.Broadcast(FString(id.c_str()), winningOption, winningCount);
 				}
 			});
-
-		/*
-		{ "action": "authenticate", "data": { "client_id": "1f1wyw7py7nhcsrdv8l8jggar42b7d", "pin": "pPVqSe" }}s
-		*/
-
-		nlohmann::json msg;
-		msg["action"] = "authenticate";
-
-		msg["data"]["client_id"] = "dfv1aj3itxrrgx1094bld8j0ezy4p9";
-		msg["data"]["jwt"] = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhbGxvd2VkX3N0YWdlIjoic2FuZGJveCIsImNoYW5uZWxfaWQiOiIyMzE2MTM1NyIsImV4cCI6MTU5MzE5MjE1OSwib3BhcXVlX3VzZXJfaWQiOiJVMTIzNDU2NzgiLCJwdWJzdWJfcGVybXMiOnsic2VuZCI6WyIqIl19LCJyb2xlIjoidmlld2VyIiwidXNlcl9pZCI6IjEyMzQ1Njc4In0.m5HZN1rLaE4hmBuZgB2b-ItJmg1B6ix1dG3VMXeC_u8";
-
-		conn->send(msg);
 	}
 }
 
 void UMuxyGameInstance::ConnectWithCode(FString code)
 {
-	UE_LOG(LogGame, Warning, TEXT("Connection code: %s"), *code);
-
 	SetupConnection(this);
+
+	nlohmann::json msg;
+	msg["action"] = "authenticate";
+
+	msg["data"]["client_id"] = "dfv1aj3itxrrgx1094bld8j0ezy4p9";
+	msg["data"]["pin"] = std::string(TCHAR_TO_UTF8(*code));
+
+	conn->send(msg);
+}
+
+void UMuxyGameInstance::ConnectWithJWT(FString jwt)
+{
+	SetupConnection(this);
+
+	nlohmann::json msg;
+	msg["action"] = "authenticate";
+
+	msg["data"]["client_id"] = "dfv1aj3itxrrgx1094bld8j0ezy4p9";
+	msg["data"]["jwt"] = std::string(TCHAR_TO_UTF8(*jwt));
+
+	conn->send(msg);
 }
 
 void UMuxyGameInstance::CreatePollWithTwoOptions(FString id, FString prompt, FString first, FString second)
@@ -104,13 +123,13 @@ void UMuxyGameInstance::CreatePollWithTwoOptions(FString id, FString prompt, FSt
 	msg["params"]["target"] = "poll";
 	msg["data"]["poll_id"] = TCHAR_TO_ANSI(*id);
 	msg["data"]["prompt"] = TCHAR_TO_ANSI(*prompt);
-	
+
 	nlohmann::json options;
 	options.push_back(TCHAR_TO_ANSI(*first));
 	options.push_back(TCHAR_TO_ANSI(*second));
 
 	msg["data"]["options"] = options;
-	
+
 	SetupConnection(this);
 	SendMessage(msg);
 }

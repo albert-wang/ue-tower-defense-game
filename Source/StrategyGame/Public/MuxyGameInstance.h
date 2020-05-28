@@ -19,6 +19,9 @@ public:
 	void ConnectWithCode(FString code);
 
 	UFUNCTION(BlueprintCallable)
+	void ConnectWithJWT(FString jwt);
+
+	UFUNCTION(BlueprintCallable)
 	void CreatePollWithTwoOptions(FString id, FString prompt, FString option0, FString option1);
 
 	UFUNCTION(BlueprintCallable)
@@ -26,8 +29,15 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void DeletePoll(FString id);
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FAuthenticateDelegate);
+	UPROPERTY(BlueprintAssignable)
+	FAuthenticateDelegate OnAuthenticate;
 	
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FPollResultDelegate, FString, poll_id, int, winner, int, voteCount);
 	UPROPERTY(BlueprintAssignable)
 	FPollResultDelegate OnGetPollResultsDelegate;
+
+	UPROPERTY(BlueprintReadOnly)
+	FString JWT;
 };
