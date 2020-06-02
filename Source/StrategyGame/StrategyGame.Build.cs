@@ -34,27 +34,13 @@ public class StrategyGame : ModuleRules
 			}
 		);
 
-
 		PrivateIncludePaths.AddRange(
 			new string[] {
 				"StrategyGame/Private/UI/Menu",
 				"StrategyGame/Private/UI/Style",
-				"StrategyGame/Private/UI/Widgets",
-				"StrategyGame/Private/ThirdParty"
+				"StrategyGame/Private/UI/Widgets"
 			}
 		);
-
-		PublicSystemLibraryPaths.Add("StrategyGame/Private/ThirdParty");
-		PublicAdditionalLibraries.Add("Experimental.lib");
-		PublicAdditionalLibraries.Add("websockets.lib");
-		PublicAdditionalLibraries.Add("zlib.lib");
-		PublicAdditionalLibraries.Add("libcrypto.lib");
-		PublicAdditionalLibraries.Add("libssl.lib");
-		PublicAdditionalLibraries.Add("libuv.lib");
-		PublicAdditionalLibraries.Add("crypt32.lib");
-		PublicAdditionalLibraries.Add("Psapi.lib");
-		PublicAdditionalLibraries.Add("Userenv.lib");
-
 
 		if (Target.Platform == UnrealTargetPlatform.Android)
 		{

@@ -2,7 +2,3 @@
 
 #include "StrategyGame.h"
 #include "MuxyInputFieldBase.h"
-
-void UMuxyInputFieldBase::SubmitCode(FString code)
-{
-}

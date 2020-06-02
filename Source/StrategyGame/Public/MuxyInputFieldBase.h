@@ -13,7 +13,4 @@ UCLASS()
 class STRATEGYGAME_API UMuxyInputFieldBase : public UUserWidget
 {
 	GENERATED_BODY()
-        
-    UFUNCTION(BlueprintCallable)
-    void SubmitCode(FString code);
 };
