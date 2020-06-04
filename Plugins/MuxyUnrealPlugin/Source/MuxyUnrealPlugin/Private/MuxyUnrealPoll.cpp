@@ -32,7 +32,10 @@ namespace
 		virtual void UpdateOperation(FLatentResponse& Response) override
 		{
 			UMuxyUnrealPoll * poll = UMuxyUnrealPluginBPLibrary::GetPoll(ID, world);
-			Response.FinishAndTriggerIf(poll->HasResults(), ExecutionFunction, OutputLink, CallbackTarget);
+			if (poll)
+			{
+				Response.FinishAndTriggerIf(poll->HasResults(), ExecutionFunction, OutputLink, CallbackTarget);
+			}
 		}
 	private:
 	};
