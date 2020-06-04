@@ -58,38 +58,45 @@ public:
 					}
 					else if (type == "get")
 					{
-						nlohmann::json data = obj["data"];
-						std::string id = data["poll_id"];
-
-						nlohmann::json results = data["results"];
-
-						int winningOption = 0;
-						int winningCount = 0;
-
-						int index = 0;
-						for (auto it = results.begin(); it != results.end(); ++it)
+						if (obj["data"].is_null())
 						{
-							int count = it->get<int>();
-							if (count > winningCount)
+							// Don't do anything - invisible failure
+						}
+						else
+						{
+							nlohmann::json data = obj["data"];
+							std::string id = data["poll_id"];
+
+							nlohmann::json results = data["results"];
+
+							int winningOption = 0;
+							int winningCount = 0;
+
+							int index = 0;
+							for (auto it = results.begin(); it != results.end(); ++it)
 							{
-								winningCount = count;
-								winningOption = index;
+								int count = it->get<int>();
+								if (count > winningCount)
+								{
+									winningCount = count;
+									winningOption = index;
+								}
+
+								index++;
 							}
 
-							index++;
-						}
+							FString idfstr(id.c_str());
+							inst->OnGetPollResultsDelegate.Broadcast(idfstr, winningOption, winningCount);
 
-						FString idfstr(id.c_str());
-						inst->OnGetPollResultsDelegate.Broadcast(idfstr, winningOption, winningCount);
-
-						// Try to find if this was a created poll
-						for (size_t i = 0; i < polls.Num(); ++i)
-						{
-							UMuxyUnrealPoll * poll = polls[i];
-							if (poll->ID == idfstr)
+							// Try to find if this was a created poll
+							for (size_t i = 0; i < polls.Num(); ++i)
 							{
-								poll->DeclareWinner(winningOption, winningCount);
-								poll->OnGetPollResultsDelegate.Broadcast(winningOption, winningCount);
+								UMuxyUnrealPoll * poll = polls[i];
+								if (poll->ID == idfstr)
+								{
+									poll->DeclareWinner(winningOption, winningCount);
+									poll->OnGetPollResultsDelegate.Broadcast(winningOption, winningCount);
+								}
 							}
 						}
 					}
@@ -107,12 +114,20 @@ public:
 		}
 		else if (conn)
 		{
+			std::string str = msg.dump();
+			FString proxy = str.c_str();
+			UE_LOG(LogTemp, Warning, TEXT("Send message: %s"), *proxy);
+
 			conn->send(msg);
 		}
 	}
 
 	void SendMessage(nlohmann::json msg) override
 	{
+		std::string str = msg.dump();
+		FString proxy = str.c_str();
+		UE_LOG(LogTemp, Warning, TEXT("Send message: %s"), *proxy);
+
 		SetupConnection();
 		conn->send(msg);
 	}
@@ -169,6 +184,11 @@ public:
 		msg["action"] = "delete";
 		msg["params"]["target"] = "poll";
 		msg["data"]["poll_id"] = TCHAR_TO_ANSI(*id);
+		
+		polls.RemoveAll([&id](UMuxyUnrealPoll * poll)
+		{
+			return poll->ID == id;
+		});
 		
 		QueueMessage(msg);
 	}
