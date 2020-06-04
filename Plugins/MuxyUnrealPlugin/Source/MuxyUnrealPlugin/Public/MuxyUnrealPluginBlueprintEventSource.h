@@ -10,8 +10,7 @@ class UMuxyUnrealPluginEventSource : public UObject
 {
 	GENERATED_BODY()
 public:
-	UFUNCTION(BlueprintCallable)
-	void DoSomething(float Param);
+	void BeginDestroy() override;
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMuxyAuthenticateDelegate);
 	UPROPERTY(BlueprintAssignable)

@@ -4,7 +4,11 @@
 
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "MuxyUnrealPluginBlueprintEventSource.h"
+#include "MuxyUnrealPoll.h"
+
 #include "MuxyUnrealPluginBPLibrary.generated.h"
+
+class IMuxyUnrealConnection;
 
 /* 
 *	Function library class.
@@ -36,23 +40,27 @@ public:
 	static float MuxyUnrealPluginSampleFunction(float Param);
 	*/
 
-	UFUNCTION(BlueprintCallable)
-	static void AuthenticateWithCode(FString clientid, FString code);
+	UFUNCTION(BlueprintCallable, meta=(WorldContext="ctx"))
+	static void AuthenticateWithCode(FString clientid, FString code, UObject* ctx);
 
-	UFUNCTION(BlueprintCallable)
-	static void AuthenticateWithJWT(FString clientid, FString code);
+	UFUNCTION(BlueprintCallable, meta = (WorldContext = "ctx"))
+	static void AuthenticateWithJWT(FString clientid, FString code, UObject* ctx);
 
-	UFUNCTION(BlueprintCallable)
-	static void CreatePollWithTwoOptions(FString id, FString prompt, FString first, FString second);
+	UFUNCTION(BlueprintCallable, meta = (WorldContext = "ctx"))
+	static UMuxyUnrealPoll * CreatePollWithTwoOptions(FString id, FString prompt, FString first, FString second, UObject* ctx);
 
-	UFUNCTION(BlueprintCallable)
-	static void GetPollResults(FString id);
+	UFUNCTION(BlueprintCallable, meta = (WorldContext = "ctx"))
+	static UMuxyUnrealPoll* GetPoll(FString id, UObject* ctx);
 
-	UFUNCTION(BlueprintCallable)
-	static void DeletePoll(FString id);
-
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, meta = (WorldContext = "ctx"))
+	static UMuxyUnrealPluginEventSource * GetEventSource(UObject * ctx);
+	
 	static UMuxyUnrealPluginEventSource * GetEventSource();
+	static IMuxyUnrealConnection * GetConnection();
+	static void ResetSourceAndConnection();
 private:
+	static void CreateEventSource(UObject * ctx);
+
 	static UMuxyUnrealPluginEventSource * eventSource;
+	static IMuxyUnrealConnection * connection;
 };
