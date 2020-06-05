@@ -19,14 +19,14 @@ namespace
 	{
 	public:
 		FString ID;
-		UWorld* world;
+		UWorld* World;
 		FName ExecutionFunction;
 		int32 OutputLink;
 		FWeakObjectPtr CallbackTarget;
 
-		FWaitForResultsAction(FString pollid, UWorld * world, const FLatentActionInfo& info)
-			:ID(pollid)
-			,world(world)
+		FWaitForResultsAction(FString PollID, UWorld * World, const FLatentActionInfo& info)
+			:ID(PollID)
+			,World(World)
 			,ExecutionFunction(info.ExecutionFunction)
 			,OutputLink(info.Linkage)
 			,CallbackTarget(info.CallbackTarget)
@@ -34,10 +34,10 @@ namespace
 
 		virtual void UpdateOperation(FLatentResponse& Response) override
 		{
-			UMuxyUnrealPoll * poll = UMuxyUnrealPluginBPLibrary::GetPoll(ID, world);
-			if (poll)
+			UMuxyUnrealPoll * Poll = UMuxyUnrealPluginBPLibrary::GetPoll(ID, World);
+			if (Poll)
 			{
-				Response.FinishAndTriggerIf(poll->HasResults(), ExecutionFunction, OutputLink, CallbackTarget);
+				Response.FinishAndTriggerIf(Poll->HasResults(), ExecutionFunction, OutputLink, CallbackTarget);
 			}
 		}
 	private:
@@ -47,43 +47,43 @@ namespace
 void UMuxyUnrealPoll::QueueGetResults()
 {
 	// Reset results and wait for new ones
-	winner = 0;
-	winningVoteCount = 0;
-	hasUpdatedResults = false;
+	Winner = 0;
+	WinningVoteCount = 0;
+	HasUpdatedResults = false;
 
 	UMuxyUnrealPluginBPLibrary::GetConnection()->GetPollResults(ID);
 }
 
-void UMuxyUnrealPoll::DeclareWinner(int win, int count)
+void UMuxyUnrealPoll::DeclareWinner(int Win, int Count)
 {
-	winner = win;
-	winningVoteCount = count;
-	hasUpdatedResults = true;
+	Winner = Win;
+	WinningVoteCount = Count;
+	HasUpdatedResults = true;
 }
 
-void UMuxyUnrealPoll::GetResults(int& winnerOut, int& voteCountOut)
+void UMuxyUnrealPoll::GetResults(int& WinnerOut, int& VoteCountOut)
 {
-	winnerOut = winner;
-	voteCountOut = winningVoteCount;
+	WinnerOut = Winner;
+	VoteCountOut = WinningVoteCount;
 }
 
 bool UMuxyUnrealPoll::HasResults()
 {
-	return hasUpdatedResults;
+	return HasUpdatedResults;
 }
 
-void UMuxyUnrealPoll::QueueGetResultsLatent(UObject * ctx, FLatentActionInfo info)
+void UMuxyUnrealPoll::QueueGetResultsLatent(UObject * Context, FLatentActionInfo LatentInfo)
 {
-	UWorld * world = GetWorldFromContext(ctx);
-	if (!world)
+	UWorld * World = GetWorldFromContext(Context);
+	if (!World)
 	{
 		return;
 	}
 
-	FLatentActionManager& latentActionManager = world->GetLatentActionManager();
-	if (latentActionManager.FindExistingAction<FWaitForResultsAction>(info.CallbackTarget, info.UUID) == nullptr)
+	FLatentActionManager& LatentActionManager = World->GetLatentActionManager();
+	if (LatentActionManager.FindExistingAction<FWaitForResultsAction>(LatentInfo.CallbackTarget, LatentInfo.UUID) == nullptr)
 	{
-		latentActionManager.AddNewAction(info.CallbackTarget, info.UUID, new FWaitForResultsAction(ID, world, info));
+		LatentActionManager.AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID, new FWaitForResultsAction(ID, World, LatentInfo));
 	}
 
 	QueueGetResults();

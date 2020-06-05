@@ -13,89 +13,89 @@ class MuxyUnrealConnectionImpl : public IMuxyUnrealConnection
 {
 public:
 	MuxyUnrealConnectionImpl()
-		:muxyThread(nullptr)
-		,conn(nullptr)
-		,connected(false)
+		:MuxyThread(nullptr)
+		,Conn(nullptr)
+		,Connected(false)
 	{}
 
 	void SetupConnection() override
 	{
-		if (!muxyThread)
+		if (!MuxyThread)
 		{
-			conn = new WebsocketConnection("34.222.83.186", 5050);
-			muxyThread = new std::thread([this]() { conn->run(); });
+			Conn = new WebsocketConnection("34.222.83.186", 5050);
+			MuxyThread = new std::thread([this]() { Conn->run(); });
 
-			conn->onMessage([this](nlohmann::json obj)
+			Conn->onMessage([this](nlohmann::json Obj)
 				{
-					std::string str = obj.dump();
-					FString proxy = str.c_str();
-					UE_LOG(LogTemp, Warning, TEXT("Got message: %s"), *proxy);
-					auto inst = UMuxyUnrealPluginBPLibrary::GetEventSource();
+					std::string Str = Obj.dump();
+					FString Proxy = Str.c_str();
+					UE_LOG(LogTemp, Warning, TEXT("Got message: %s"), *Proxy);
+					auto EventSource = UMuxyUnrealPluginBPLibrary::GetEventSource();
 
-					std::string type = obj["meta"]["action"];
-					if (type == "authenticate")
+					std::string Type = Obj["meta"]["action"];
+					if (Type == "authenticate")
 					{
-						if (obj["data"].is_null())
+						if (Obj["data"].is_null())
 						{
 							// Don't do anything - invisible failure
 						}
 						else
 						{
-							std::string jwt = obj["data"]["jwt"];
+							std::string JWT = Obj["data"]["jwt"];
 
-							inst->JWT = FString(jwt.c_str());
-							inst->OnMuxyAuth.Broadcast();
+							EventSource->JWT = FString(JWT.c_str());
+							EventSource->OnMuxyAuth.Broadcast();
 
-							connected = true;
-							if (queue.size())
+							Connected = true;
+							if (Queue.size())
 							{
-								for (auto it = queue.begin(); it != queue.end(); ++it)
+								for (auto it = Queue.begin(); it != Queue.end(); ++it)
 								{
-									conn->send(*it);
+									Conn->send(*it);
 								}
 							}
 						}
 					}
-					else if (type == "get")
+					else if (Type == "get")
 					{
-						if (obj["data"].is_null())
+						if (Obj["data"].is_null())
 						{
 							// Don't do anything - invisible failure
 						}
 						else
 						{
-							nlohmann::json data = obj["data"];
-							std::string id = data["poll_id"];
+							nlohmann::json Data = Obj["data"];
+							std::string ID = Data["poll_id"];
 
-							nlohmann::json results = data["results"];
+							nlohmann::json Results = Data["results"];
 
-							int winningOption = 0;
-							int winningCount = 0;
+							int WinningOption = 0;
+							int WinningCount = 0;
 
-							int index = 0;
-							for (auto it = results.begin(); it != results.end(); ++it)
+							int Index = 0;
+							for (auto it = Results.begin(); it != Results.end(); ++it)
 							{
-								int count = it->get<int>();
-								if (count > winningCount)
+								int Count = it->get<int>();
+								if (Count > WinningCount)
 								{
-									winningCount = count;
-									winningOption = index;
+									WinningCount = Count;
+									WinningOption = Index;
 								}
 
-								index++;
+								Index++;
 							}
 
-							FString idfstr(id.c_str());
-							inst->OnGetPollResultsDelegate.Broadcast(idfstr, winningOption, winningCount);
+							FString IDFString(ID.c_str());
+							EventSource->OnGetPollResultsDelegate.Broadcast(IDFString, WinningOption, WinningCount);
 
 							// Try to find if this was a created poll
-							for (size_t i = 0; i < polls.Num(); ++i)
+							for (size_t i = 0; i < Polls.Num(); ++i)
 							{
-								UMuxyUnrealPoll * poll = polls[i];
-								if (poll->ID == idfstr)
+								UMuxyUnrealPoll * Poll = Polls[i];
+								if (Poll->ID == IDFString)
 								{
-									poll->DeclareWinner(winningOption, winningCount);
-									poll->OnGetPollResultsDelegate.Broadcast(winningOption, winningCount);
+									Poll->DeclareWinner(WinningOption, WinningCount);
+									Poll->OnGetPollResultsDelegate.Broadcast(WinningOption, WinningCount);
 								}
 							}
 						}
@@ -104,103 +104,103 @@ public:
 		}
 	}
 
-	void QueueMessage(nlohmann::json msg) override
+	void QueueMessage(nlohmann::json Msg) override
 	{
 		SetupConnection();
 
-		if (conn && !connected)
+		if (Conn && !Connected)
 		{
-			queue.push_back(msg);
+			Queue.push_back(Msg);
 		}
-		else if (conn)
+		else if (Conn)
 		{
-			std::string str = msg.dump();
-			FString proxy = str.c_str();
-			UE_LOG(LogTemp, Warning, TEXT("Send message: %s"), *proxy);
+			std::string Str = Msg.dump();
+			FString Proxy = Str.c_str();
+			UE_LOG(LogTemp, Warning, TEXT("Send message: %s"), *Proxy);
 
-			conn->send(msg);
+			Conn->send(Msg);
 		}
 	}
 
-	void SendMessage(nlohmann::json msg) override
+	void SendMessage(nlohmann::json Msg) override
 	{
-		std::string str = msg.dump();
-		FString proxy = str.c_str();
-		UE_LOG(LogTemp, Warning, TEXT("Send message: %s"), *proxy);
+		std::string Str = Msg.dump();
+		FString Proxy = Str.c_str();
+		UE_LOG(LogTemp, Warning, TEXT("Send message: %s"), *Proxy);
 
 		SetupConnection();
-		conn->send(msg);
+		Conn->send(Msg);
 	}
 
-	UMuxyUnrealPoll * CreatePollWithTwoOptions(FString id, FString prompt, FString first, FString second, UObject * ctx) override
+	UMuxyUnrealPoll * CreatePollWithTwoOptions(FString ID, FString Prompt, FString First, FString Second, UObject * WorldContext) override
 	{
-		nlohmann::json msg;
-		msg["action"] = "create";
-		msg["params"]["target"] = "poll";
-		msg["data"]["poll_id"] = TCHAR_TO_ANSI(*id);
-		msg["data"]["prompt"] = TCHAR_TO_ANSI(*prompt);
+		nlohmann::json Msg;
+		Msg["action"] = "create";
+		Msg["params"]["target"] = "poll";
+		Msg["data"]["poll_id"] = TCHAR_TO_ANSI(*ID);
+		Msg["data"]["prompt"] = TCHAR_TO_ANSI(*Prompt);
 
-		nlohmann::json options;
-		options.push_back(TCHAR_TO_ANSI(*first));
-		options.push_back(TCHAR_TO_ANSI(*second));
+		nlohmann::json Options;
+		Options.push_back(TCHAR_TO_ANSI(*First));
+		Options.push_back(TCHAR_TO_ANSI(*Second));
 
-		msg["data"]["options"] = options;
+		Msg["data"]["options"] = Options;
 
-		QueueMessage(msg);
+		QueueMessage(Msg);
 
-		UMuxyUnrealPoll* poll = NewObject<UMuxyUnrealPoll>(ctx);
-		poll->ID = id;
+		UMuxyUnrealPoll* Poll = NewObject<UMuxyUnrealPoll>(WorldContext);
+		Poll->ID = ID;
 
-		UE_LOG(LogTemp, Warning, TEXT("Size of polls: %d"), polls.Num());
+		UE_LOG(LogTemp, Warning, TEXT("Size of polls: %d"), Polls.Num());
 
-		polls.Add(poll);
-		return poll;
+		Polls.Add(Poll);
+		return Poll;
 	}
 
-	UMuxyUnrealPoll * GetPoll(FString id)
+	UMuxyUnrealPoll * GetPoll(FString ID)
 	{
-		for (size_t i = 0; i < polls.Num(); ++i)
+		for (size_t i = 0; i < Polls.Num(); ++i)
 		{
-			if (polls[i]->ID == id)
+			if (Polls[i]->ID == ID)
 			{
-				return polls[i];
+				return Polls[i];
 			}
 		}
 
 		return nullptr;
 	}
 
-	void GetPollResults(FString id)
+	void GetPollResults(FString ID)
 	{
-		nlohmann::json msg;
-		msg["action"] = "get";
-		msg["params"]["target"] = "poll";
-		msg["data"]["poll_id"] = TCHAR_TO_ANSI(*id);
+		nlohmann::json Msg;
+		Msg["action"] = "get";
+		Msg["params"]["target"] = "poll";
+		Msg["data"]["poll_id"] = TCHAR_TO_ANSI(*ID);
 
-		QueueMessage(msg);
+		QueueMessage(Msg);
 	}
 
-	void DeletePoll(FString id)
+	void DeletePoll(FString ID)
 	{
-		nlohmann::json msg;
-		msg["action"] = "delete";
-		msg["params"]["target"] = "poll";
-		msg["data"]["poll_id"] = TCHAR_TO_ANSI(*id);
+		nlohmann::json Msg;
+		Msg["action"] = "delete";
+		Msg["params"]["target"] = "poll";
+		Msg["data"]["poll_id"] = TCHAR_TO_ANSI(*ID);
 		
-		polls.RemoveAll([&id](UMuxyUnrealPoll * poll)
+		Polls.RemoveAll([&ID](UMuxyUnrealPoll * Poll)
 		{
-			return poll->ID == id;
+			return Poll->ID == ID;
 		});
 		
-		QueueMessage(msg);
+		QueueMessage(Msg);
 	}
 private:
-	std::thread* muxyThread = nullptr;
-	WebsocketConnection* conn = nullptr;
-	bool connected = false;
-	std::vector<nlohmann::json> queue;
+	std::thread* MuxyThread;
+	WebsocketConnection* Conn;
+	bool Connected;
+	std::vector<nlohmann::json> Queue;
 
-	TArray<UMuxyUnrealPoll *> polls;
+	TArray<UMuxyUnrealPoll *> Polls;
 };
 
 IMuxyUnrealConnection * CreateMuxyUnrealConnection()

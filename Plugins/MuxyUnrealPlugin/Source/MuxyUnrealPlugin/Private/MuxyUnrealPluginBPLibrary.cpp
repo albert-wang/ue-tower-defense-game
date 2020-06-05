@@ -7,8 +7,8 @@
 #include "Engine/Engine.h"
 #include "ThirdParty/nlohmann/json.hpp"
 
-UMuxyUnrealPluginEventSource* UMuxyUnrealPluginBPLibrary::eventSource = nullptr;
-IMuxyUnrealConnection* UMuxyUnrealPluginBPLibrary::connection = nullptr;
+UMuxyUnrealPluginEventSource* UMuxyUnrealPluginBPLibrary::EventSource = nullptr;
+IMuxyUnrealConnection* UMuxyUnrealPluginBPLibrary::Connection = nullptr;
 
 UMuxyUnrealPluginBPLibrary::UMuxyUnrealPluginBPLibrary(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer)
@@ -16,87 +16,87 @@ UMuxyUnrealPluginBPLibrary::UMuxyUnrealPluginBPLibrary(const FObjectInitializer&
 
 }
 
-UMuxyUnrealPluginEventSource* UMuxyUnrealPluginBPLibrary::GetEventSource(UObject* ctx)
+UMuxyUnrealPluginEventSource* UMuxyUnrealPluginBPLibrary::GetEventSource(UObject* Context)
 {
-	CreateEventSource(ctx);
-	return eventSource;
+	CreateEventSource(Context);
+	return EventSource;
 }
 
 
 UMuxyUnrealPluginEventSource* UMuxyUnrealPluginBPLibrary::GetEventSource()
 {
-	return eventSource;
+	return EventSource;
 }
 
-void UMuxyUnrealPluginBPLibrary::CreateEventSource(UObject * ctx)
+void UMuxyUnrealPluginBPLibrary::CreateEventSource(UObject * Context)
 {
-	if (!eventSource)
+	if (!EventSource)
 	{
-		eventSource = NewObject<UMuxyUnrealPluginEventSource>(ctx);
-		UWorld * world = GEngine->GetWorldFromContextObjectChecked(ctx);
+		EventSource = NewObject<UMuxyUnrealPluginEventSource>(Context);
+		UWorld * world = GEngine->GetWorldFromContextObjectChecked(Context);
 
 		if (world)
 		{
-			world->ExtraReferencedObjects.Add(eventSource);
+			world->ExtraReferencedObjects.Add(EventSource);
 		}
 	}
 }
 
 IMuxyUnrealConnection* UMuxyUnrealPluginBPLibrary::GetConnection()
 {
-	if (connection == nullptr)
+	if (Connection == nullptr)
 	{
-		connection = CreateMuxyUnrealConnection();
+		Connection = CreateMuxyUnrealConnection();
 	}
 
-	return connection;
+	return Connection;
 }
 
 void UMuxyUnrealPluginBPLibrary::ResetSourceAndConnection()
 {
-	eventSource = nullptr;
+	EventSource = nullptr;
 
-	delete connection;
-	connection = nullptr;
+	delete Connection;
+	Connection = nullptr;
 }
 
-void UMuxyUnrealPluginBPLibrary::AuthenticateWithCode(FString client, FString code, UObject* ctx)
+void UMuxyUnrealPluginBPLibrary::AuthenticateWithCode(FString ClientID, FString Code, UObject* Context)
 {
-	CreateEventSource(ctx);
-	UE_LOG(LogTemp, Warning, TEXT("Attempting to connect: %s:%s"), *client, *code);
+	CreateEventSource(Context);
+	UE_LOG(LogTemp, Warning, TEXT("Attempting to connect: %s:%s"), *ClientID, *Code);
 
-	nlohmann::json msg;
-	msg["action"] = "authenticate";
+	nlohmann::json Msg;
+	Msg["action"] = "authenticate";
 
 	// "dfv1aj3itxrrgx1094bld8j0ezy4p9";
-	msg["data"]["client_id"] = std::string(TCHAR_TO_UTF8(*client));
-	msg["data"]["pin"] = std::string(TCHAR_TO_UTF8(*code));
+	Msg["data"]["client_id"] = std::string(TCHAR_TO_UTF8(*ClientID));
+	Msg["data"]["pin"] = std::string(TCHAR_TO_UTF8(*Code));
 
-	GetConnection()->SendMessage(msg);
+	GetConnection()->SendMessage(Msg);
 }
 
-void UMuxyUnrealPluginBPLibrary::AuthenticateWithJWT(FString client, FString jwt, UObject* ctx)
+void UMuxyUnrealPluginBPLibrary::AuthenticateWithJWT(FString ClientID, FString JWT, UObject* Context)
 {
-	CreateEventSource(ctx);
+	CreateEventSource(Context);
 
-	nlohmann::json msg;
-	msg["action"] = "authenticate";
+	nlohmann::json Msg;
+	Msg["action"] = "authenticate";
 
 	// "dfv1aj3itxrrgx1094bld8j0ezy4p9";
-	msg["data"]["client_id"] = std::string(TCHAR_TO_UTF8(*client));
-	msg["data"]["jwt"] = std::string(TCHAR_TO_UTF8(*jwt));
+	Msg["data"]["client_id"] = std::string(TCHAR_TO_UTF8(*ClientID));
+	Msg["data"]["jwt"] = std::string(TCHAR_TO_UTF8(*JWT));
 
-	GetConnection()->SendMessage(msg);
+	GetConnection()->SendMessage(Msg);
 }
 
-UMuxyUnrealPoll * UMuxyUnrealPluginBPLibrary::CreatePollWithTwoOptions(FString id, FString prompt, FString first, FString second, UObject* ctx)
+UMuxyUnrealPoll * UMuxyUnrealPluginBPLibrary::CreatePollWithTwoOptions(FString ID, FString Prompt, FString First, FString Second, UObject* Context)
 {
-	CreateEventSource(ctx);
-	return GetConnection()->CreatePollWithTwoOptions(id, prompt, first, second, ctx);
+	CreateEventSource(Context);
+	return GetConnection()->CreatePollWithTwoOptions(ID, Prompt, First, Second, Context);
 }
 
-UMuxyUnrealPoll* UMuxyUnrealPluginBPLibrary::GetPoll(FString id, UObject* ctx)
+UMuxyUnrealPoll* UMuxyUnrealPluginBPLibrary::GetPoll(FString ID, UObject* Context)
 {
-	CreateEventSource(ctx);
-	return GetConnection()->GetPoll(id);
+	CreateEventSource(Context);
+	return GetConnection()->GetPoll(ID);
 }

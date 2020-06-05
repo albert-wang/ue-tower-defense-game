@@ -12,15 +12,15 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void QueueGetResults();
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FPollResultDelegate, int, winner, int, voteCount);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FPollResultDelegate, int, Winner, int, VoteCount);
 	UPROPERTY(BlueprintAssignable)
 	FPollResultDelegate OnGetPollResultsDelegate;
 
 	UFUNCTION(BlueprintCallable)
-	void GetResults(int& winner, int& voteCount);
+	void GetResults(int& Winner, int& VoteCount);
 
-	UFUNCTION(BlueprintCallable, meta = (Latent, LatentInfo="info", WorldContext="ctx"))
-	void QueueGetResultsLatent(UObject * ctx, FLatentActionInfo info);
+	UFUNCTION(BlueprintCallable, meta = (Latent, LatentInfo="LatentInfo", WorldContext="Context"))
+	void QueueGetResultsLatent(UObject * Context, FLatentActionInfo LatentInfo);
 
 	UFUNCTION(BlueprintCallable)
 	void DeletePoll();
@@ -28,9 +28,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool HasResults();
 
-	void DeclareWinner(int winner, int count);
+	void DeclareWinner(int Winner, int Count);
 private:
-	bool hasUpdatedResults;
-	int winner;
-	int winningVoteCount;
+	bool HasUpdatedResults;
+	int Winner;
+	int WinningVoteCount;
 };

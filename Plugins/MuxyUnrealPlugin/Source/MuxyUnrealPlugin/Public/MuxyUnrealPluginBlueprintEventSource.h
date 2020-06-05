@@ -16,7 +16,7 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FMuxyAuthenticateDelegate OnMuxyAuth;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FPollResultDelegate, FString, poll_id, int, winner, int, voteCount);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FPollResultDelegate, FString, PollID, int, Winner, int, VoteCount);
 	UPROPERTY(BlueprintAssignable)
 	FPollResultDelegate OnGetPollResultsDelegate;
 

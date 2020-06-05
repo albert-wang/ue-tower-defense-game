@@ -40,27 +40,27 @@ public:
 	static float MuxyUnrealPluginSampleFunction(float Param);
 	*/
 
-	UFUNCTION(BlueprintCallable, meta=(WorldContext="ctx"))
-	static void AuthenticateWithCode(FString clientid, FString code, UObject* ctx);
+	UFUNCTION(BlueprintCallable, meta = (WorldContext="Context"))
+	static void AuthenticateWithCode(FString ClientID, FString code, UObject* Context);
 
-	UFUNCTION(BlueprintCallable, meta = (WorldContext = "ctx"))
-	static void AuthenticateWithJWT(FString clientid, FString code, UObject* ctx);
+	UFUNCTION(BlueprintCallable, meta = (WorldContext = "Context"))
+	static void AuthenticateWithJWT(FString ClientID, FString JWT, UObject* Context);
 
-	UFUNCTION(BlueprintCallable, meta = (WorldContext = "ctx"))
-	static UMuxyUnrealPoll * CreatePollWithTwoOptions(FString id, FString prompt, FString first, FString second, UObject* ctx);
+	UFUNCTION(BlueprintCallable, meta = (WorldContext = "Context"))
+	static UMuxyUnrealPoll * CreatePollWithTwoOptions(FString ID, FString prompt, FString first, FString second, UObject* Context);
 
-	UFUNCTION(BlueprintCallable, meta = (WorldContext = "ctx"))
-	static UMuxyUnrealPoll* GetPoll(FString id, UObject* ctx);
+	UFUNCTION(BlueprintCallable, meta = (WorldContext = "Context"))
+	static UMuxyUnrealPoll* GetPoll(FString ID, UObject* Context);
 
-	UFUNCTION(BlueprintCallable, meta = (WorldContext = "ctx"))
-	static UMuxyUnrealPluginEventSource * GetEventSource(UObject * ctx);
+	UFUNCTION(BlueprintCallable, meta = (WorldContext = "Context"))
+	static UMuxyUnrealPluginEventSource * GetEventSource(UObject * Context);
 	
 	static UMuxyUnrealPluginEventSource * GetEventSource();
 	static IMuxyUnrealConnection * GetConnection();
 	static void ResetSourceAndConnection();
 private:
-	static void CreateEventSource(UObject * ctx);
+	static void CreateEventSource(UObject * Context);
 
-	static UMuxyUnrealPluginEventSource * eventSource;
-	static IMuxyUnrealConnection * connection;
+	static UMuxyUnrealPluginEventSource * EventSource;
+	static IMuxyUnrealConnection * Connection;
 };
