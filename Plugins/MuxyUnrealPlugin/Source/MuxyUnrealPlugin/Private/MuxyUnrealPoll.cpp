@@ -1,6 +1,9 @@
 #include "MuxyUnrealPoll.h"
 #include "LatentActions.h"
 
+#include "MuxyUnrealConnection.h"
+#include "MuxyUnrealPluginBPLibrary.h"
+
 namespace
 {
 	UWorld* GetWorldFromContext(UObject* ctx)

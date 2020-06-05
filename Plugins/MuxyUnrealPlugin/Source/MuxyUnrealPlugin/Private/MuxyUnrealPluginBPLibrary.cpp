@@ -32,7 +32,13 @@ void UMuxyUnrealPluginBPLibrary::CreateEventSource(UObject * ctx)
 {
 	if (!eventSource)
 	{
-		eventSource = NewObject< UMuxyUnrealPluginEventSource>(ctx);
+		eventSource = NewObject<UMuxyUnrealPluginEventSource>(ctx);
+		UWorld * world = GEngine->GetWorldFromContextObjectChecked(ctx);
+
+		if (world)
+		{
+			world->ExtraReferencedObjects.Add(eventSource);
+		}
 	}
 }
 
@@ -86,7 +92,7 @@ void UMuxyUnrealPluginBPLibrary::AuthenticateWithJWT(FString client, FString jwt
 UMuxyUnrealPoll * UMuxyUnrealPluginBPLibrary::CreatePollWithTwoOptions(FString id, FString prompt, FString first, FString second, UObject* ctx)
 {
 	CreateEventSource(ctx);
-	return GetConnection()->CreatePollWithTwoOptions(id, prompt, first, second);
+	return GetConnection()->CreatePollWithTwoOptions(id, prompt, first, second, ctx);
 }
 
 UMuxyUnrealPoll* UMuxyUnrealPluginBPLibrary::GetPoll(FString id, UObject* ctx)

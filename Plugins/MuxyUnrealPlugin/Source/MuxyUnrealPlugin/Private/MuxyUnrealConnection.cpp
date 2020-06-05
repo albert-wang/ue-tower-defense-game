@@ -132,7 +132,7 @@ public:
 		conn->send(msg);
 	}
 
-	UMuxyUnrealPoll * CreatePollWithTwoOptions(FString id, FString prompt, FString first, FString second) override
+	UMuxyUnrealPoll * CreatePollWithTwoOptions(FString id, FString prompt, FString first, FString second, UObject * ctx) override
 	{
 		nlohmann::json msg;
 		msg["action"] = "create";
@@ -148,8 +148,10 @@ public:
 
 		QueueMessage(msg);
 
-		UMuxyUnrealPoll* poll = NewObject<UMuxyUnrealPoll>();
+		UMuxyUnrealPoll* poll = NewObject<UMuxyUnrealPoll>(ctx);
 		poll->ID = id;
+
+		UE_LOG(LogTemp, Warning, TEXT("Size of polls: %d"), polls.Num());
 
 		polls.Add(poll);
 		return poll;
