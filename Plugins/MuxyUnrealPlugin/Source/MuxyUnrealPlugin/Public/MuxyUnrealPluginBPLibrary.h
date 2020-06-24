@@ -5,6 +5,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "MuxyUnrealPluginBlueprintEventSource.h"
 #include "MuxyUnrealPoll.h"
+#include "MuxyUnrealSubscription.h"
 
 #include "MuxyUnrealPluginBPLibrary.generated.h"
 
@@ -54,6 +55,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, meta = (WorldContext = "Context"))
 	static UMuxyUnrealPluginEventSource * GetEventSource(UObject * Context);
+
+	UFUNCTION(BlueprintCallable, meta = (WorldContext = "Context"))
+	static void BroadcastMessage(FString Topic, FString Data, UObject* Context);
+
+	UFUNCTION(BlueprintCallable, meta = (WorldContext = "Context"))
+	static void SetChannelStatePath(FString Path, FString info, UObject* Context);
 	
 	static UMuxyUnrealPluginEventSource * GetEventSource();
 	static IMuxyUnrealConnection * GetConnection();

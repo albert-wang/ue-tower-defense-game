@@ -100,3 +100,15 @@ UMuxyUnrealPoll* UMuxyUnrealPluginBPLibrary::GetPoll(FString ID, UObject* Contex
 	CreateEventSource(Context);
 	return GetConnection()->GetPoll(ID);
 }
+
+void UMuxyUnrealPluginBPLibrary::BroadcastMessage(FString Topic, FString Data, UObject* Context)
+{
+	CreateEventSource(Context);
+	return GetConnection()->Broadcast(Topic, Data);
+}
+
+void UMuxyUnrealPluginBPLibrary::SetChannelStatePath(FString Path, FString Data, UObject* Context)
+{
+	CreateEventSource(Context);
+	return GetConnection()->SetChannelStatePath(Path, Data);
+}

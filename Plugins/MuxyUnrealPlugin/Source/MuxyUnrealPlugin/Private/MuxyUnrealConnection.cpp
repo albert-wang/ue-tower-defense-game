@@ -22,7 +22,7 @@ public:
 	{
 		if (!MuxyThread)
 		{
-			Conn = new WebsocketConnection("34.222.83.186", 5050);
+			Conn = new WebsocketConnection("staging.gamelink.muxy.io", 80);
 			MuxyThread = new std::thread([this]() { Conn->run(); });
 
 			Conn->onMessage([this](nlohmann::json Obj)
@@ -65,7 +65,8 @@ public:
 						else
 						{
 							nlohmann::json Data = Obj["data"];
-							std::string ID = Data["poll_id"];
+							nlohmann::json Poll = Data["poll"];
+							std::string ID = Poll["poll_id"];
 
 							nlohmann::json Results = Data["results"];
 
@@ -192,6 +193,36 @@ public:
 			return Poll->ID == ID;
 		});
 		
+		QueueMessage(Msg);
+	}
+
+	void Broadcast(FString Topic, FString Data)
+	{
+		nlohmann::json Msg;
+		Msg["action"] = "broadcast";
+		Msg["data"]["topic"] = TCHAR_TO_ANSI(*Topic);
+		Msg["data"]["message"] = TCHAR_TO_ANSI(*Data);
+
+		QueueMessage(Msg);
+	}
+
+	void SetChannelStatePath(FString path, FString data)
+	{
+		nlohmann::json Msg;
+		Msg["action"] = "set";
+		Msg["parasm"]["target"] = "channel";
+
+		nlohmann::json operations;
+		nlohmann::json replacement;
+
+		replacement["op"] = "add_intermediates";
+		replacement["path"] = TCHAR_TO_ANSI(*path);
+		replacement["value"] = TCHAR_TO_ANSI(*data);
+
+		operations.push_back(replacement);
+
+		Msg["data"]["state"] = operations;
+
 		QueueMessage(Msg);
 	}
 private:
