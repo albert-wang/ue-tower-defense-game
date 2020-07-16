@@ -1,5 +1,6 @@
 // Some copyright should be here...
 
+using System;
 using System.IO;
 using UnrealBuildTool;
 
@@ -47,13 +48,15 @@ public class MuxyUnrealPlugin : ModuleRules
 
 		System.Console.WriteLine(Path.Combine(ModuleDirectory, "Private/ThirdParty"));
 
+		string BasePath = Path.Combine(ModuleDirectory, "Private/ThirdParty");
+
 		PublicSystemLibraryPaths.Add(Path.Combine(ModuleDirectory, "Private/ThirdParty"));
-		PublicAdditionalLibraries.Add("Experimental.lib");
-		PublicAdditionalLibraries.Add("websockets.lib");
-		PublicAdditionalLibraries.Add("zlib.lib");
-		PublicAdditionalLibraries.Add("libcrypto.lib");
-		PublicAdditionalLibraries.Add("libssl.lib");
-		PublicAdditionalLibraries.Add("libuv.lib");
+		PublicAdditionalLibraries.Add(Path.Combine(BasePath, "Experimental.lib"));
+		PublicAdditionalLibraries.Add(Path.Combine(BasePath, "websockets.lib"));
+		PublicAdditionalLibraries.Add(Path.Combine(BasePath, "zlib.lib"));
+		PublicAdditionalLibraries.Add(Path.Combine(BasePath, "libcrypto.lib"));
+		PublicAdditionalLibraries.Add(Path.Combine(BasePath, "libssl.lib"));
+		PublicAdditionalLibraries.Add(Path.Combine(BasePath, "libuv.lib"));
 		PublicAdditionalLibraries.Add("crypt32.lib");
 		PublicAdditionalLibraries.Add("Psapi.lib");
 		PublicAdditionalLibraries.Add("Userenv.lib");

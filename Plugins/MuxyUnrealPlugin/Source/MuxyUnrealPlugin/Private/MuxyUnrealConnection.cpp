@@ -23,7 +23,10 @@ public:
 		if (!MuxyThread)
 		{
 			Conn = new WebsocketConnection("staging.gamelink.muxy.io", 80);
-			MuxyThread = new std::thread([this]() { Conn->run(); });
+			MuxyThread = new std::thread([this]() { 
+				Conn->run(); 
+				UE_LOG(LogTemp, Warning, TEXT("Connection has finished running?"));
+			});
 
 			Conn->onMessage([this](nlohmann::json Obj)
 				{

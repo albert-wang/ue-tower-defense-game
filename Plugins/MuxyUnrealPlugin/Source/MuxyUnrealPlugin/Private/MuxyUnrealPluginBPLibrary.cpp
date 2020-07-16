@@ -68,7 +68,6 @@ void UMuxyUnrealPluginBPLibrary::AuthenticateWithCode(FString ClientID, FString 
 	nlohmann::json Msg;
 	Msg["action"] = "authenticate";
 
-	// "dfv1aj3itxrrgx1094bld8j0ezy4p9";
 	Msg["data"]["client_id"] = std::string(TCHAR_TO_UTF8(*ClientID));
 	Msg["data"]["pin"] = std::string(TCHAR_TO_UTF8(*Code));
 
@@ -82,7 +81,6 @@ void UMuxyUnrealPluginBPLibrary::AuthenticateWithJWT(FString ClientID, FString J
 	nlohmann::json Msg;
 	Msg["action"] = "authenticate";
 
-	// "dfv1aj3itxrrgx1094bld8j0ezy4p9";
 	Msg["data"]["client_id"] = std::string(TCHAR_TO_UTF8(*ClientID));
 	Msg["data"]["jwt"] = std::string(TCHAR_TO_UTF8(*JWT));
 
