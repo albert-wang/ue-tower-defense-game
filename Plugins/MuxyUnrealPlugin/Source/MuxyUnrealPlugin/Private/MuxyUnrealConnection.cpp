@@ -153,6 +153,7 @@ public:
 		Poll->ID = ID;
 
 		UE_LOG(LogTemp, Warning, TEXT("Size of polls: %d"), Polls.Num());
+		Poll->AddToRoot();
 
 		Polls.Add(Poll);
 		return Poll;
@@ -190,7 +191,13 @@ public:
 		
 		Polls.RemoveAll([&ID](UMuxyUnrealPoll * Poll)
 		{
-			return Poll->ID == ID;
+			if (Poll->ID == ID) 
+			{
+				Poll->RemoveFromRoot();
+				return true;
+			}
+
+			return false;
 		});
 		
 		QueueMessage(Msg);
